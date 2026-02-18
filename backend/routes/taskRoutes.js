@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const Task = require('../models/Task');
-
+const auth = require('../middleware/auth');
+router.use(auth);
 // CREATE - POST /api/tasks
 router.post('/', async (req, res) => {
   try {
