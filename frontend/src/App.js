@@ -11,6 +11,7 @@ function App() {
   const [editId, setEditId] = useState(null);
   const [editTitle, setEditTitle] = useState('');
   const [editDescription, setEditDescription] = useState('');
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (token) {
@@ -32,14 +33,25 @@ function App() {
     }
   };
 
+const validate = () => {
+  const newErrors = {};
+  if (!title.trim()) newErrors.title = 'Title is required.';
+  else if (title.trim().length < 3) newErrors.title = 'Title must be at least 3 characters.';
+  if (description.length > 200) newErrors.description = 'Description max 200 characters.';
+  setErrors(newErrors);
+  return Object.keys(newErrors).length === 0;
+};
+
   const createTask = async (e) => {
     e.preventDefault();
+    if (!validate()) return;
     await axios.post('http://localhost:5000/api/tasks', 
       { title, description },
       { headers: { Authorization: token } }  // ✅ Send token
     );
     setTitle('');
     setDescription('');
+    setErrors({});
     fetchTasks();
   };
 
@@ -86,12 +98,14 @@ function App() {
           onChange={(e) => setTitle(e.target.value)}
           required
         />
+        {errors.title && <p style={{ color: 'red' }}>{errors.title}</p>}
         <input
           type="text"
           placeholder="Description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
+        {errors.description && <p style={{ color: 'red' }}>{errors.description}</p>}
         <button type="submit">Add Task</button>
       </form>
 
