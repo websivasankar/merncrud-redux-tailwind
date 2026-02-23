@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Task = require('../models/Task');
 const auth = require('../middleware/auth');
+const roleMiddleware = require('../middleware/roleMiddleware');
 router.use(auth);
 // CREATE - POST /api/tasks
 router.post('/', async (req, res) => {
@@ -47,7 +48,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // DELETE - DELETE /api/tasks/:id
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', roleMiddleware('admin'), async (req, res) => {
   try {
     const task = await Task.findByIdAndDelete(req.params.id);
     if (!task) return res.status(404).json({ message: 'Task not found' });

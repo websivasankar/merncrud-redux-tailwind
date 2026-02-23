@@ -12,6 +12,7 @@ function App() {
   const [editTitle, setEditTitle] = useState('');
   const [editDescription, setEditDescription] = useState('');
   const [errors, setErrors] = useState({});
+  const [role, setRole] = useState(localStorage.getItem('role'));   // ✅ Load saved role
 
   useEffect(() => {
     if (token) {
@@ -73,20 +74,31 @@ const validate = () => {
     fetchTasks();
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    setToken(null);
-    setTasks([]);
+  // ✅ Accept role from Auth component on login
+  const handleLogin = (newToken, newRole) => {
+    localStorage.setItem('token', newToken);
+    localStorage.setItem('role', newRole);
+    setToken(newToken);
+    setRole(newRole);
   };
 
-  // ✅ Show login page if no token
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('role');
+    setToken(null);
+    setRole(null);
+    setTasks([]);
+
+  };
+
   if (!token) {
-    return <Auth setToken={setToken} />;
+    return <Auth setToken={handleLogin} />;
   }
 
   return (
     <div>
       <h1>Todo App</h1>
+      <p>Logged in as: <strong>{role === 'admin' ? '🔑 Admin' : '👤 User'}</strong></p>
       <button onClick={handleLogout}>Logout</button>  {/* ✅ Logout button */}
       
       {/* CREATE FORM */}
@@ -137,7 +149,9 @@ const validate = () => {
                 setEditTitle(task.title);
                 setEditDescription(task.description);
               }}>Edit</button>
-              <button onClick={() => deleteTask(task._id)}>Delete</button>
+             {role === 'admin' && (
+                <button onClick={() => deleteTask(task._id)}>Delete</button>
+              )}
             </div>
           )}
         </div>

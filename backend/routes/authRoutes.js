@@ -7,13 +7,13 @@ const jwt = require('jsonwebtoken');
 // REGISTER
 router.post('/register', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password , role} = req.body;
     
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
     
     // Create user
-    const user = new User({ email, password: hashedPassword });
+    const user = new User({ email, password: hashedPassword , role: role || 'user'});
     await user.save();
     
     res.status(201).json({ message: 'User registered!' });
@@ -36,9 +36,9 @@ router.post('/login', async (req, res) => {
     if (!validPassword) return res.status(400).json({ message: 'Wrong password' });
     
     // Create JWT token
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
+    const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET);
     
-    res.json({ token, email: user.email });
+    res.json({ token, email: user.email , role: user.role });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

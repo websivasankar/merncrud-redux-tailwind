@@ -16,7 +16,7 @@ function Auth({ setToken }) {
       if (isLogin) {
         // Save token to localStorage
         localStorage.setItem('token', res.data.token);
-        setToken(res.data.token);
+        setToken(res.data.token, res.data.role);
         setMessage('Login successful!');
       } else {
         setMessage('Registration successful! Please login.');
